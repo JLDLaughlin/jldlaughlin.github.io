@@ -1,0 +1,133 @@
+
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/> 
+<title>Airflow: Why is nothing working?</title>
+<link href="index.rss" rel="alternate" title="RSS" type="application/rss+xml"/> 
+<style type="text/css"><!--
+a:link { color: #293145; border-bottom: solid thin #293145; }
+a:visited { color: #666; border-bottom: dotted thin #666; }
+a:hover { color: #666; border-bottom: dotted thin #666; }
+a:active { color: #fff; border-bottom: none; }
+a { text-decoration: none; }
+
+body {
+    margin-top: 50px;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 40em;
+    max-width: 800px;
+    font-family: Roboto Condensed, Oswald, Open Sans, sans-serif;
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+h2, h3, .heading, .name {
+    color: #293145;
+    font-family: Arial, sans-serif;
+}
+
+.heading, .name {
+    margin: 0;
+    text-align: right;
+}
+
+.name {
+    font-size: 250%;
+    font-weight: bold;
+}
+
+.me {
+    font-weight: bold;
+    font-style: inherit;
+}
+
+.bibliography {
+    margin-left: 2em;
+    text-indent: -2em;
+}
+//--></style>
+
+<!-- enable syntax highlighting of go snippets -->
+<script src="prism.js">/* empty */</script>
+<link href="prism.css" rel="stylesheet"/>
+</head>
+ 
+<body>
+
+<div style="border-bottom: solid thin #888; padding: 10px;">
+<div style="float: left; padding-top: 10px; padding-bottom: 10px;">
+<p class="name">Airflow: Why is nothing working?</p>
+<p class="heading"><a href="../index.html">(take me home)</a>
+</div>
+<br clear="all"/>
+</div>
+<div style="padding: 10px;">
+
+<h3>[ 2018-February-28 ]</h3>
+
+<i>This post was originally shared <a href="https://medium.com/bluecore-engineering/airflow-why-is-nothing-working-f705eb6b7b04">on Medium</a></i>.
+
+<p><b>TL;DR Airflow’s SubDagOperator causes deadlocks.</b></p>
+
+<p>At <a href="https://www.bluecore.com/">Bluecore</a>, we love data. Our products rely on crunching lots of data to help our eCommerce customers provide personalized experiences through email, advertising, and customized on-site experiences. As we continue to add more products, we have had an increasing number of ways to manage data processing workflows. Instead of maintaining N different systems to control our data workflows, we want to consolidate our data processing onto a single platform.</p>
+
+<p><i>As Simple As Possible, As Powerful as Necessary</i> is a cultural maxim at Bluecore engineering. In the early days of our product evolution, <a href="https://www.youtube.com/watch?v=mozu-ZuPNgE&ab_channel=CodeDrivenNYC">we built a composable ETL system for linear data processing workflows</a>. That no longer scaled for our newer data products, and thus we decided to introduce Airflow, <a href="https://airflow.apache.org/">“a platform to programmatically author, schedule and monitor workflows,”</a> created by Airbnb. In this post I’m not going to write about what Airflow is, its basic concepts, or why you might want to use it. Airflow’s own documentation does a great job of covering this, and there are a <a href="https://medium.com/tag/airflow">growing number of posts</a> that give examples for those new to Airflow. Instead, I’m going to write about a specific blocker my teammates and I hit when we decided to start running production jobs for a project, Project X, through Airflow.</p>
+
+<h2>Problem</h2>
+<p>We set up a basic Airflow environment that runs on a <a href="https://kubernetes.io/">Kubernetes cluster</a> and uses <a href="https://docs.celeryproject.org/en/latest/index.html">Celery workers</a> to process tasks. Project X requires a workflow be run per customer. To do this in Airflow, we created a Project X <a href="https://airflow.apache.org/docs/apache-airflow/stable/concepts.html#dags">DAG</a> for each customer. A DAG, Directed Acyclic Graph, defines a workflow in Airflow. Here is a simplified version of Project X’s DAG:</p>
+
+<img src="../images/project_x_dag.jpg" alt="Project X's DAG" height="350">
+
+<p>We vetted this for production like everyone does: we ran one customer’s DAG, it worked, we ran two customers’ DAGs, they both worked, it’s production ready! We were feeling confident about our environment, our DAGs, and our Airflow knowledge, so we began running hundreds of production Project X DAGs through Airflow. And nothing worked.</p>
+
+<p>We had kicked off the DAGs through the Airflow UI and saw the workers start processing tasks. Since we knew the DAGs would likely take a few hours, we moved on to other work while (we hoped) they would complete in the meantime. But when we checked a few hours later, we found that the workers had barely made any progress at all.</p>
+
+<p>We were surprised and decided to try the simplest solution: throw more resources at the problem. We added more workers to our Kubernetes cluster and upped the concurrent task limit. With somewhat reduced confidence, we reset the environment and kicked everything off again. And still, nothing worked.</p>
+
+<h2>Debugging</h2>
+<p>At this point, our previous confidence had disappeared. Unable to pinpoint the issue from our initial understanding of Airflow, Kubernetes, Celery workers, etc., we set off to hunt through what clues the broken environment could give us.</p>
+
+<p>In our initial debugging, we found two symptoms of our mystery issue:</p>
+<ul>
+<li>Our worker nodes were being evicted (killed and restarted) by Kubernetes pretty consistently.</li>
+<li>The Celery workers were full of running tasks that were never actually completing.</li>
+</ul>
+
+<h2>Tackling Evicted Worker Nodes</h2>
+
+<p>Thinking that the first symptom might be causing the second, we searched for the cause of the evicted Kubernetes pods. Luckily, Googling ‘workers evicted Airflow Kubernetes’ lead us to helpful Kubernetes documentation and other <a href="https://medium.com/retailmenot-engineering/what-happens-when-a-kubernetes-pod-uses-too-much-memory-or-too-much-cpu-82165022f489">Medium posts</a>.</p>
+
+<p>The problem was that we were not specifying memory resources for containers running our Airflow code on Kubernetes. Without specifying that processes from container X required Y amount of memory to run, Kubernetes would schedule these processes to run on any available machine, including ones with less than Y memory available!</p>
+
+<p>Because our containers were continuously trying to use more memory than was available, our Kubernetes pods were continuously being evicted. This is expected behavior as per <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Kubernetes’ documentation</a>.</p>
+
+<p><i>Fun debugging side-note: our quick-and-dirty solution from earlier to increase the limit of concurrent tasks for the workers actually exacerbated the proble ! By increasing the number of concurrent tasks without specifying memory resources, the scheduler was scheduling even more processes to run on Kubernetes machines without the necessary available memory.</i></p>
+
+<p>To fix this issue, we specified memory resources in our Kubernetes configuration. We applied the updated configuration to our cluster, reset the Airflow environment, and tried to run the DAGs again. We were happy to see that our workers were no longer being evicted by Kubernetes. On to the second symptom!</p>
+
+<h2>Tackling Perpetually Running Tasks</h2>
+
+<p>Sadly, the Celery workers were still processing tasks that were never completing. So we searched through Airflow documentation, Celery documentation, Kubernetes documentation, and logs. This is when we took very good advice from a teammate: step back, simplify, and try again.</p>
+
+<p>We scaled down to just one worker running with a limit of 32 concurrent tasks. We kicked off one DAG, hoping to hit the same issue in this simplified environment. Luckily, we did.<p>
+
+<p><i>Fun debugging side-note: You read earlier that we tested two DAGs successfully in production, which is why we felt confident moving everything over. Now I’m saying just one DAG broke the environment. What’s up?
+In the original environment, we had multiple workers and a much larger number of available concurrent tasks. While we technically should have hit the same issue, we basically just got lucky. Bugs are fun!</i></p>
+
+<p>We found that at the point when the Celery workers stopped completing running tasks, each of the running tasks were instances of Airflow’s <a href="https://github.com/apache/airflow/blob/master/airflow/operators/subdag_operator.py">SubDagOperator</a>.</p>
+
+<img src="../images/subdag_operator.jpg" alt="subdag operators" height="200">
+
+<p>For those less familiar with Airflow Operators, the SubDagOperator is a native Operator that allows you to use a task in a DAG to kick off an entirely separate child DAG. The parent DAG must wait for the entire child DAG to finish processing in order to move on to the next task. So the SubDagOperator task is occupying a worker’s execution slot and is waiting for a child DAG to finish. The child DAG can’t finish (or even start!) because it is waiting for an available execution slot. Deadlock!</p>
+
+<p>Now that we had diagnosed the problem, Googling `Airflow SubDagOperator deadlock` quickly confirmed that other people were also experiencing deadlocks using SubDagOperator.</p>
+
+<p>We replaced all instances of SubDagOperator with a <a href="https://gist.github.com/JLDLaughlin/2e60fa47704a9f4536b837e62dc8b14e">new custom Operator</a>. This Operator performs the same tasks as the previous SubDagOperator, but all inside of a single task. We confirmed the fix by running the updated DAGs, and finally…</p>
+
+<p>Everything worked!</p>
+
+<h2>Final Thoughts</h2>
+
+<p>Even though it took a few people a few days to dig in, debug, and solve this specific issue, we still think Airflow is a good choice for managing Product X’s workflow. However, this issue did highlight that there will always be different problems at scale (and in production) than in a development environment. The best thing that you can do is understand the system so you know how to debug when the time comes. But in the meantime, <b>don’t use SubDagOperators!</b></p>
+
