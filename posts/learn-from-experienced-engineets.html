@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <title>Airflow: Why is nothing working?</title>
+    <link href="index.rss" rel="alternate" title="RSS" type="application/rss+xml"/>
+    <style type="text/css"><!--
+    a:link { color: #293145; border-bottom: solid thin #293145; }
+    a:visited { color: #666; border-bottom: dotted thin #666; }
+    a:hover { color: #666; border-bottom: dotted thin #666; }
+    a:active { color: #fff; border-bottom: none; }
+    a { text-decoration: none; }
+
+    body {
+        margin-top: 50px;
+        margin-bottom: 20px;
+        margin-left: auto;
+        margin-right: auto;
+        min-width: 40em;
+        max-width: 800px;
+        font-family: Roboto Condensed, Oswald, Open Sans, sans-serif;
+        font-size: 20px;
+        line-height: 1.4;
+    }
+
+    h2, h3, .heading, .name {
+        color: #293145;
+        font-family: Arial, sans-serif;
+    }
+
+    .heading, .name {
+        margin: 0;
+        text-align: right;
+    }
+
+    .name {
+        font-size: 250%;
+        font-weight: bold;
+    }
+
+    </style>
+
+    <!-- enable syntax highlighting of go snippets -->
+    <script src="prism.js">/* empty */</script>
+    <link href="prism.css" rel="stylesheet"/>
+</head>
+
+<body>
+
+<div style="border-bottom: solid thin #888; padding: 10px;">
+    <div style="float: right; padding-top: 10px; padding-bottom: 10px;">
+        <p class="name">Airflow: Why is nothing working?</p>
+        <p class="heading"><a href="../index.html">(take me home)</a>
+    </div>
+    <br clear="all"/>
+</div>
+<div style="padding: 10px;">
+
+    <h3>[ 2021-January-21 ]</h3>
+
+    <i>This post was originally shared <a href="https://jldlaughlin.medium.com/how-to-learn-from-experienced-engineers-ef7bae43e600">on Medium</a></i>.
+
+    <p>
+        Software engineering is a job of constant learning. The good news is that engineers have a ton of resources to learn:
+        the Internet, books and classes, and, maybe most importantly, other engineers. The bad news is that nobody tells you
+        <b>how</b> to use these resources to learn. In this post, I’m going to present three pieces of advice for a very specific
+        type of learning: learning from experienced engineers.
+    </p>
+
+    <p>
+        First thing’s first, what do I mean by experienced? It’s important to note that I’m actively avoiding labels like “senior”
+        or “principal” because I don’t mean an engineer with a specific title. Instead, I mean any engineer who has some sort of
+        experience that you don’t. This could be general industry experience, domain-specific experience, leadership experience,
+        or anything else you can think of. The important thing is that this other engineer has a set of skills that you would like
+        to learn.
+    </p>
+
+    <p>
+        For transparency: This list is made up of some things I do well and some things I’d like to do better. If there’s anything
+        you think I’ve missed entirely, let me know!
+    </p>
+
+    <h2>Ask good questions at the right time</h2>
+
+    <p><i>I’m confused. Something’s wrong. It just doesn’t work.</i></p>
+
+    <p>
+        I have had all of these thoughts writing software, and I will certainly have them all again. Unfortunately, none of these
+        thoughts make great questions to ask or to answer. Imagine someone coming up to you with a cryptic stack trace and just
+        saying “it’s broken.” You would have a lot of work to do before you could even begin to help.
+    </p>
+
+    <p>
+        Instead, good questions are the result of translating ambiguous confusion into specific questions. Let’s walk through
+        an example. Say you’re trying to figure out why your Docker container isn’t running, and your first thought is:
+    </p>
+
+    <p><i>I’m confused.</i></p>
+
+    <p>
+        Instead of approaching the problem from a place of panic or confusion, start by writing down everything you <b>do</b> know.
+        (This is a great trick I learned from <a href="https://twitter.com/b0rk">Julia Evans'</a> blog post
+        <a href="https://jvns.ca/blog/2018/09/01/learning-skills-you-can-practice/">“How to teach yourself hard things”</a>.).
+        By writing down everything you are certain about, you will be able to easily identify what you are uncertain about.
+        At this point, your list of knowns might look like:
+    </p>
+
+    <p>
+        <i>If I can’t see a docker container via docker ps, it isn’t running.</i>
+    </p>
+    <p>
+        <i>I definitely did start a Docker container.</i>
+    </p>
+    <p>
+        <i>Like other processes, Docker containers should have exit codes.</i>
+    </p>
+
+    <p>
+        You’ll be surprised how many times just listing your knowns answers your question! For the times when it doesn’t, the
+        next and final step is to assess what exactly is missing from your knowledge. What specifically do you still need to know?
+    </p>
+
+    <p>
+        <i>How can I list Docker containers that aren’t currently running?</i>
+    </p>
+    <p>
+        <i>How can I read the logs of failed or completed Docker containers?</i>
+    </p>
+
+    <p>
+        Now that you have good, specific questions, you might be able to answer them on your own. For the times you can’t,
+        when should you ask them? Typically, it’s not the right time to ask a question if you’re interrupting someone else’s
+        work — software engineers are notoriously bad at being interrupted. Instead, use the times that your team has already
+        carved out for conversation. Ask your questions in your stand up! In your 1:1s! If these times don’t work, schedule
+        dedicated time with another engineer. The best time to ask questions is when others are prepared to answer them.
+    </p>
+
+    <p>
+        <i>
+            If you’re new to a company, team, or project, schedule a standing 1:1 with an engineer who can answer your
+            technical questions — having this dedicated time is very valuable!
+        </i>
+    </p>
+
+    <p>
+        Asking good questions at the right time is a great tool for learning and an even better tool for building relationships.
+        By coming with specific, answerable questions, you’re ensuring that the engineers helping you will feel like their time
+        was well-spent. Even better, those same engineers will be happy to help you again in the future.
+    </p>
+
+    <h2>Learn how they learn</h2>
+
+    <p>
+        It turns out that even experienced software engineers don’t know everything all of the time. But when they don’t,
+        they’re good at hunting down answers. This means that experienced engineers are usually good at learning about tech.
+        If you’re trying to grow as an engineer, it’s useful to learn how they learn.
+    </p>
+
+    <p>
+        How can you learn how other engineers learn? One way is to pay attention when they answer your questions. While
+        they will be able to answer some of your questions from memory, they will have to do research to answer others. They
+        might Google, reference a particular website or book, pull out their own notes, or even run command-line experiments.
+        As they’re doing this, pay attention! They are (intentionally or not) giving you the means to answer your own questions
+        next time.
+    </p>
+
+    <p>
+        The other way to find out how engineers learn is to <b>just ask</b>. It’s that simple. When you notice someone working on a
+        piece of tech or idea that’s new to you, ask them how they learned it. Chances are, they will point you to a book, class,
+        YouTube video, or blog that helped them learn. To get you started, here are a few resources experienced engineers pointed
+        me to when I asked how they learned:
+    </p>
+
+    <p>
+        <ul>
+            <li>
+                Systems programming: <a href="https://cs61.seas.harvard.edu/site/2019/">Harvard’s CS 61</a> and
+                <a href="https://www.rust-lang.org/">general Rust practice</a>
+            </li>
+            <li>
+                Operating systems: <a href="https://cs162.org/">Berkeley’s CS 162</a> and
+                <a href="https://man7.org/tlpi/">The Linux Programming Interface</a>
+            </li>
+            <li>
+                Databases: <a href="https://www.youtube.com/watch?v=oeYBdghaIjc&list=PLSE8ODhjZXjbohkNBWQs_otTrBTrjyohi&ab_channel=CMUDatabaseGroup">CMU’s Database Systems course</a>
+                and <a href="https://www.youtube.com/channel/UCHnBsf2rH-K7pn09rb3qvkA">CMU Database Group’s videos</a>
+            </li>
+        </ul>
+    </p>
+
+    <p>
+        Independence and self-sufficiency are hallmarks of experienced software engineers. As you learn how they learn,
+        you will be able to answer more of your questions more quickly and more reliably. And, soon enough, people will
+        be asking for your learning tips and tricks.
+    </p>
+
+    <h2>Ask for feedback and act on it</h2>
+
+    <p>
+        Experienced engineers are a great resource for feedback. This is because experienced software engineers were once
+        inexperienced software engineers. They know best what technologies, projects, and companies helped them to grow.
+        Perhaps more importantly, they also know what held them back from learning and growing. As you build relationships
+        with the experienced engineers around you, step outside of your comfort zone and regular review cycles to ask them
+        directly for feedback. Then, act on it.
+    </p>
+
+    <p>
+        Unfortunately, asking people for feedback can be awkward! These are my best tips and tricks (but I’d love to hear
+        how you all accomplish this, too!):
+    </p>
+
+    <p>
+        <ul>
+            <li>
+                Tell them explicit goals you’re working towards, and ask what they think you would need to get there.
+            </li>
+            <li>
+                Warn them that you’re going to ask for feedback, or give them time to think about it after you chat. Asking
+                someone to give you feedback on the spot will likely not be useful.
+            </li>
+            <li>
+                Ask the engineer to give the feedback to your manager instead, so it can be anonymized.
+            </li>
+            <li>
+                If you don’t want to have this conversation again in the future, invite this person to give more regular,
+                spontaneous feedback!
+            </li>
+        </ul>
+    </p>
+
+    <p>
+        As you do get feedback, the most important thing you can do is act on it. When you show your teammates that you’re
+        investing in yourself, they will want to continue to invest in you, too. So, if someone tells you a new way to write
+        commit messages, tag them in your next PR to show them you’ve taken their advice! If someone suggests you read a book,
+        let them know what chapter you liked best! Think of feedback as a continuous process, rather than a one-off conversation.
+    </p>
+
+    <h2>(Bonus) Experienced engineers are people, too</h2>
+
+    <p>
+        After all of this advice, I don’t want you to think that experienced engineers are infallible, perfect resources.
+        The reality is that experienced engineers are people, too. They have made mistakes before and they will make more in
+        the future. There will be times that you are right and they are wrong. Some of those engineers might have different
+        priorities in their lives and in their careers, so their advice and feedback might not make sense for you.
+    </p>
+
+    <p>
+        I hope these pieces of advice help you learn from the talented engineers around you. But as with any other advice,
+        take the bits that serve you and leave the rest.
+    </p>
+
+    <br>
+    <hr>
+    <p>
+        Thoughts? Questions? Praise? Let me know <a href="https://twitter.com/JLDLaughlin">on Twitter!</a>
+    </p>
+</div>
+</body>
+</html>

@@ -1,143 +1,230 @@
 
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'><html xmlns="http://www.w3.org/1999/xhtml"><head>
-<meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/> 
-<title>How does Homebrew work?</title>
-<link href="index.rss" rel="alternate" title="RSS" type="application/rss+xml"/> 
-<style type="text/css"><!--
-a:link { color: #293145; border-bottom: solid thin #293145; }
-a:visited { color: #666; border-bottom: dotted thin #666; }
-a:hover { color: #666; border-bottom: dotted thin #666; }
-a:active { color: #fff; border-bottom: none; }
-a { text-decoration: none; }
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <title>How does Homebrew work?</title>
+    <link href="index.rss" rel="alternate" title="RSS" type="application/rss+xml"/>
+    <style type="text/css"><!--
+    a:link { color: #293145; border-bottom: solid thin #293145; }
+    a:visited { color: #666; border-bottom: dotted thin #666; }
+    a:hover { color: #666; border-bottom: dotted thin #666; }
+    a:active { color: #fff; border-bottom: none; }
+    a { text-decoration: none; }
 
-body {
-    margin-top: 50px;
-    margin-bottom: 20px;
-    margin-left: auto;
-    margin-right: auto;
-    min-width: 40em;
-    max-width: 800px;
-    font-family: Roboto Condensed, Oswald, Open Sans, sans-serif;
-    font-size: 20px;
-    line-height: 1.4;
-}
+    body {
+        margin-top: 50px;
+        margin-bottom: 20px;
+        margin-left: auto;
+        margin-right: auto;
+        min-width: 40em;
+        max-width: 800px;
+        font-family: Roboto Condensed, Oswald, Open Sans, sans-serif;
+        font-size: 20px;
+        line-height: 1.4;
+    }
 
-h2, h3, .heading, .name {
-    color: #293145;
-    font-family: Arial, sans-serif;
-}
+    h2, h3, .heading, .name {
+        color: #293145;
+        font-family: Arial, sans-serif;
+    }
 
-.heading, .name {
-    margin: 0;
-    text-align: right;
-}
+    .heading, .name {
+        margin: 0;
+        text-align: right;
+    }
 
-.name {
-    font-size: 250%;
-    font-weight: bold;
-}
+    .name {
+        font-size: 250%;
+        font-weight: bold;
+    }
 
-.me {
-    font-weight: bold;
-    font-style: inherit;
-}
+    </style>
 
-.bibliography {
-    margin-left: 2em;
-    text-indent: -2em;
-}
-//--></style>
-
-<!-- enable syntax highlighting of go snippets -->
-<script src="prism.js">/* empty */</script>
-<link href="prism.css" rel="stylesheet"/>
+    <!-- enable syntax highlighting of go snippets -->
+    <script src="prism.js">/* empty */</script>
+    <link href="prism.css" rel="stylesheet"/>
 </head>
  
 <body>
 
-<div style="border-bottom: solid thin #888; padding: 10px;">
-<div style="float: left; padding-top: 10px; padding-bottom: 10px;">
-<p class="name">How does Homebrew work? Starring Rust!</p>
-<p class="heading"><a href="../index.html">(take me home)</a>
+    <div style="border-bottom: solid thin #888; padding: 10px;">
+    <div style="float: right; padding-top: 10px; padding-bottom: 10px;">
+    <p class="name">How does Homebrew work? Starring Rust!</p>
+    <p class="heading"><a href="../index.html">(take me home)</a>
+    </div>
+    <br clear="all"/>
+    </div>
+    <div style="padding: 10px;">
+
+    <h3>[ 2020-February-18 ]</h3>
+
+    <i>This post was originally shared <a href="https://medium.com/@jldlaughlin/how-does-homebrew-work-starring-rust-94ae5aa24552">on Medium</a></i>.
+
+    <p>
+        Recently at <a href="https://materialize.com/">Materialize</a>, I created our first (and my first!)
+        <a href="https://github.com/MaterializeInc/homebrew-materialize">Homebrew package</a>. My helpful coworkers pointed
+        me to documentation about <a href="https://docs.brew.sh/Formula-Cookbook">how to write a Homebrew Formula</a>, but
+        the guides I found online didn’t explain <b>how</b> installing software with Homebrew worked. In this post, I’m going
+        to explain how Homebrew works by walking through a tiny example: brew installing a Rust program that simply prints
+        “Hello, world!”.
+    </p>
+
+    <h2>Hello, world! in Rust</h2>
+
+    <p>
+        I’ve already created a “Hello, world!” program in <a href="https://www.rust-lang.org/">Rust</a> using
+        <a href="https://doc.rust-lang.org/cargo/">Cargo</a>, Rust’s package manager, and pushed it to a
+        <a href="https://github.com/JLDLaughlin/rust_hello_world">new GitHub repository</a>. (For the curious, this is the
+        Rust program created by default when you <a href="https://doc.rust-lang.org/cargo/guide/creating-a-new-project.html">
+        create a new Cargo package</a>).
+    </p>
+
+    <p>
+        To run this program locally on my computer, I ran the following two commands from my terminal:
+    </p>
+
+    <ul>
+        <li>
+            <a href="https://doc.rust-lang.org/cargo/commands/cargo-build.html"><b>cargo build</b></a>: This tells Cargo to
+            turn my high-level, human-readable Rust source code into instructions my computer’s processor can actually execute.
+            The executable file, or binary, is then placed in my target/ directory.
+        </li>
+        <li>
+            <a href="https://doc.rust-lang.org/cargo/commands/cargo-run.html"><b>cargo run</b></a>: This tells Cargo to
+            grab the newly-created binary file and have my computer’s processor execute its instructions, one line at a time.
+        </li>
+    </ul>
+
+    <p>
+        In short: <b>to run my Rust program, Cargo translated my source code into an executable file stored at a predictable
+        location and then later handed that executable to my computer’s processor to run</b>.
+    </p>
+
+    <h2>Introducing: Homebrew</h2>
+
+    <p>
+        Now that we understand how our computers execute our Rust program, we actually understand how Homebrew works, too!
+        Just like <b>cargo build && cargo run</b> creates a binary, stores it in a predictable location, and executes it,
+        <b>Homebrew creates executables and installs them into a predictable location for your computer to execute later</b>.
+        To take a closer look, let’s install our “Hello, world!” package!
+    </p>
+
+    <h2>brew tap</h2>
+
+    <p>
+        By default, Homebrew can only install <a href="https://github.com/Homebrew/homebrew-core">core Homebrew Formulae</a>.
+        To install our third-party “Hello, world!” package, we will first need to run <a href="https://docs.brew.sh/Taps">brew tap</a>.
+        <b>Tap</b>-ing the Github repository with our Homebrew Formula creates a
+        <a href="https://git-scm.com/docs/git-clone#Documentation/git-clone.txt---depthltdepthgt">shallow clone</a> of our
+        epo in our Homebrew taps directory, allowing us to install, update, and track our package just like the canonical
+        Homebrew packages.
+    </p>
+
+    <img src="../images/brew_tap.jpg" alt="brew tap" height="180">
+
+    <p>
+        <i>
+            Note: If you’re creating your own Homebrew Formula at home, you may see weird failures (like `git: “credential-osxkeychain”
+            is not a git command`) at this step. Often, the trick is your Github repository must be named exactly `homebrew-*`.
+        </i>
+    </p>
+
+    <p>
+        Once we’ve tap-ed the repository with our Formula, running brew install hello_world from our terminal will install
+        our package. But what does brew install actually do?
+    </p>
+
+    <h2>brew install</h2>
+
+    <p>
+        When we run <b>brew install</b>, Homebrew reads our package’s Formula — an implementation of
+        <a href="https://www.rubydoc.info/github/Homebrew/brew/Formula">Ruby’s abstract Formula class</a> that provides
+        package metadata and installation instructions — to create an executable from our source code and install it locally
+        on our computer. Let’s dig into this by looking at the
+        <a href="https://github.com/JLDLaughlin/homebrew-hello-world/blob/master/Formula/hello_world.rb">Formula for `hello_world`
+        </a>, section by section:
+    </p>
+
+    <img src="../images/homebrew_formula.jpg" alt="homebrew_formula" height="125">
+
+    <p>
+        This first section defines essential metadata for our Homebrew Formula:
+    </p>
+
+    <ul>
+        <li>
+            Desc: A simple description of our software
+        </li>
+        <li>
+            Homepage: Link to a homepage for our software
+        </li>
+        <li>
+            RL: The URL to download the source code for the Formula!
+        </li>
+        <li>
+            Version: Version of our software
+        </li>
+        <li>
+            SHA256: The sha256 checksum of our source code, in this case hello.tar.gz
+        </li>
+    </ul>
+
+    <i>Note: To calculate the sha256 checksum of your source code, you can do the following:</i>
+
+    <img src="../images/homebrew_sha256.jpg" alt="sha256" height="50">
+
+    <p>
+        Now that we’ve provided Homebrew with our package’s metadata, in the next section we tell Homebrew how to actually build it:
+    </p>
+
+    <img src="../images/homebrew_install.jpg" alt="homebrew install and deps" height="150">
+
+    <ul>
+        <li>
+            Depends_on: Any dependencies for our source code
+        </li>
+        <li>
+            Install: How to actually create an executable file from our source code — <i>notice we’re just using the same
+            `cargo build` as before!</i>
+        </li>
+    </ul>
+
+    <p>
+        And that’s (most of) our Formula! Since we’ve provided the necessary metadata and installation instructions for Homebrew,
+        we can now run brew install hello_world in our terminal:
+    </p>
+
+    <img src="../images/brew_install_terminal.jpg" alt="brew install terminal" height="300">
+
+    <p>
+        We can see Homebrew is following our Formula by: downloading and installing our dependency (Rust), downloading our
+        source code (hello.tar.gz), and running <b>cargo build —- release —- bin hello</b> to compile our code and put our
+        binary in <a href="https://docs.brew.sh/FAQ#why-does-homebrew-prefer-i-install-to-usrlocal">/usr/local/bin</a>.
+    </p>
+
+    <p>
+        <i>
+            Note: Homebrew installs packages into /usr/local/bin because this directory location is already on your Mac’s
+            PATH — this means you can execute the newly created binary by name without providing an explicit path to it!
+        </i>
+    </p>
+
+    <h2>Hello, World! via Homebrew</h2>
+
+    <p>
+        Just like cargo build created an executable from our Rust code and put the binary in a predictable location, brew
+        install created an executable from our Formula and placed it on our Mac’s PATH. Just like cargo run executed the
+        binary in /target, invoking hello directly in our terminal will execute the binary installed on our PATH:
+    </p>
+
+    <img src="../images/brew_hello_world.jpg" alt="brew hellow world" height="50">
+
+
+    <br>
+    <hr>
+    <p>
+        Thoughts? Questions? Praise? Let me know <a href="https://twitter.com/JLDLaughlin">on Twitter!</a>
+    </p>
 </div>
-<br clear="all"/>
-</div>
-<div style="padding: 10px;">
-
-<h3>[ 2020-February-18 ]</h3>
-
-<i>This post was originally shared <a href="https://medium.com/@jldlaughlin/how-does-homebrew-work-starring-rust-94ae5aa24552">on Medium</a></i>.
-
-<p>Recently at <a href="https://materialize.com/">Materialize</a>, I created our first (and my first!) <a href="https://github.com/MaterializeInc/homebrew-materialize">Homebrew package</a>. My helpful coworkers pointed me to documentation about <a href="https://docs.brew.sh/Formula-Cookbook">how to write a Homebrew Formula</a>, but the guides I found online didn’t explain <b>how</b> installing software with Homebrew worked. In this post, I’m going to explain how Homebrew works by walking through a tiny example: brew installing a Rust program that simply prints “Hello, world!”.</p>
-
-<h2>Hello, world! in Rust</h2>
-
-<p>I’ve already created a “Hello, world!” program in <a href="https://www.rust-lang.org/">Rust</a> using <a href="https://doc.rust-lang.org/cargo/">Cargo</a>, Rust’s package manager, and pushed it to a <a href="https://github.com/JLDLaughlin/rust_hello_world">new GitHub repository</a>. (For the curious, this is the Rust program created by default when you <a href="https://doc.rust-lang.org/cargo/guide/creating-a-new-project.html">create a new Cargo package</a>).</p>
-
-<p>To run this program locally on my computer, I ran the following two commands from my terminal:</p>
-
-<ul>
-<li><a href="https://doc.rust-lang.org/cargo/commands/cargo-build.html"><b>cargo build</b></a>: This tells Cargo to turn my high-level, human-readable Rust source code into instructions my computer’s processor can actually execute. The executable file, or binary, is then placed in my target/ directory.</li>
-<li><a href="https://doc.rust-lang.org/cargo/commands/cargo-run.html"><b>cargo run</b></a>: This tells Cargo to grab the newly-created binary file and have my computer’s processor execute its instructions, one line at a time.</p>
-</ul>
-
-<p>In short: <b>to run my Rust program, Cargo translated my source code into an executable file stored at a predictable location and then later handed that executable to my computer’s processor to run</b>.</p>
-
-<h2>Introducing: Homebrew</h2>
-
-<p>Now that we understand how our computers execute our Rust program, we actually understand how Homebrew works, too! Just like <b>cargo build && cargo run</b> creates a binary, stores it in a predictable location, and executes it, <b>Homebrew creates executables and installs them into a predictable location for your computer to execute later</b>. To take a closer look, let’s install our “Hello, world!” package!</p>
-
-<h2>brew tap</h2>
-
-<p>By default, Homebrew can only install <a href="https://github.com/Homebrew/homebrew-core">core Homebrew Formulae</a>. To install our third-party “Hello, world!” package, we will first need to run <a href="https://docs.brew.sh/Taps">brew tap</a>. <b>Tap</b>-ing the Github repository with our Homebrew Formula creates a <a href="https://git-scm.com/docs/git-clone#Documentation/git-clone.txt---depthltdepthgt">shallow clone</a> of our repo in our Homebrew taps directory, allowing us to install, update, and track our package just like the canonical Homebrew packages.</p>
-
-<img src="../images/brew_tap.jpg" alt="brew tap" height="180">
-
-<p><i>Note: If you’re creating your own Homebrew Formula at home, you may see weird failures (like `git: “credential-osxkeychain” is not a git command`) at this step. Often, the trick is your Github repository must be named exactly `homebrew-*`.</i></p>
-
-<p>Once we’ve tap-ed the repository with our Formula, running brew install hello_world from our terminal will install our package. But what does brew install actually do?</p>
-
-<h2>brew install</h2>
-
-<p>When we run <b>brew install</b>, Homebrew reads our package’s Formula — an implementation of <a href="https://www.rubydoc.info/github/Homebrew/brew/Formula">Ruby’s abstract Formula class</a> that provides package metadata and installation instructions — to create an executable from our source code and install it locally on our computer. Let’s dig into this by looking at the <a href="https://github.com/JLDLaughlin/homebrew-hello-world/blob/master/Formula/hello_world.rb">Formula for `hello_world`</a>, section by section:</p>
-
-<img src="../images/homebrew_formula.jpg" alt="homebrew_formula" height="125">
-
-<p>This first section defines essential metadata for our Homebrew Formula:</p>
-
-<ul>
-<li>Desc: A simple description of our software</li>
-<li>Homepage: Link to a homepage for our software</li>
-<li>URL: The URL to download the source code for the Formula!</li>
-<li>Version: Version of our software</li>
-<li>SHA256: The sha256 checksum of our source code, in this case hello.tar.gz</li>
-</ul>
-
-<i>Note: To calculate the sha256 checksum of your source code, you can do the following:</i>
-
-<img src="../images/homebrew_sha256.jpg" alt="sha256" height="50">
-
-<p>Now that we’ve provided Homebrew with our package’s metadata, in the next section we tell Homebrew how to actually build it:</p>
-
-<img src="../images/homebrew_install.jpg" alt="homebrew install and deps" height="150">
-
-<ul>
-<li>Depends_on: Any dependencies for our source code</li>
-<li>Install: How to actually create an executable file from our source code — <i>notice we’re just using the same `cargo build` as before!</i></li>
-</ul>
-
-<p>And that’s (most of) our Formula! Since we’ve provided the necessary metadata and installation instructions for Homebrew, we can now run brew install hello_world in our terminal:</p>
-
-<img src="../images/brew_install_terminal.jpg" alt="brew install terminal" height="300">
-
-<p>We can see Homebrew is following our Formula by: downloading and installing our dependency (Rust), downloading our source code (hello.tar.gz), and running <b>cargo build —- release —- bin hello</b> to compile our code and put our binary in <a href="https://docs.brew.sh/FAQ#why-does-homebrew-prefer-i-install-to-usrlocal">/usr/local/bin</a>.</p>
-
-<p><i>Note: Homebrew installs packages into /usr/local/bin because this directory location is already on your Mac’s PATH — this means you can execute the newly created binary by name without providing an explicit path to it!</i></p>
-
-<h2>Hello, World! via Homebrew</h2>
-
-<p>Just like cargo build created an executable from our Rust code and put the binary in a predictable location, brew install created an executable from our Formula and placed it on our Mac’s PATH. Just like cargo run executed the binary in /target, invoking hello directly in our terminal will execute the binary installed on our PATH:</p>
-
-<img src="../images/brew_hello_world.jpg" alt="brew hellow world" height="50">
-
-</div></body></html>
+</body>
+</html>
